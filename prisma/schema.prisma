@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(uuid())
+  name       String    @db.VarChar(255)
+  nickname   String    @db.VarChar(255)
+  email      String    @db.VarChar(255)
+  tel        String    @db.VarChar(255)
+  address    String    @db.VarChar(255)
+  subAddress String    @map("sub_address") @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt() @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+  role       Boolean   @default(false)
+
+  contract Contract[]
+  comment  Comment[]
+}
+
+model Agent {
+  id        String    @id @default(uuid())
+  name      String    @db.VarChar(255)
+  tel       String    @db.VarChar(255)
+  company   String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  contract Contract[]
+  property Property[]
+  comment  Comment[]
+}
+
+model Property {
+  id         String   @id @default(uuid())
+  address    String   @db.VarChar(255)
+  area       String   @db.VarChar(255)
+  price      String   @db.VarChar(255)
+  room       String   @db.VarChar(255)
+  content    String   @db.VarChar(255)
+  Agent      Agent    @relation(fields: [agentId], references: [id])
+  agentId    String
+  Category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  comment  Comment[]
+  contract Contract[]
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  property Property[]
+}
+
+model Contract {
+  id           String   @id @default(uuid())
+  contractDate DateTime @default(now()) @map("contract_date")
+  duration     String   @db.VarChar(255)
+  User         User     @relation(fields: [userId], references: [id])
+  userId       String
+  Agent        Agent    @relation(fields: [agentId], references: [id])
+  agentId      String
+  Property     Property @relation(fields: [propertyId], references: [id])
+  propertyId   String
+}
+
+model Comment {
+  id         String    @id @default(uuid())
+  content    String    @db.VarChar(255)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @map("updated_at")
+  deletedAt  DateTime?
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+  Agent      Agent?    @relation(fields: [agentId], references: [id])
+  agentId    String?
+  Property   Property? @relation(fields: [propertyId], references: [id])
+  propertyId String?
+}
