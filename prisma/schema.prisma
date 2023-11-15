@@ -13,9 +13,10 @@ datasource db {
 model User {
   id         String    @id @default(uuid())
   name       String    @db.VarChar(255)
-  nickname   String    @db.VarChar(255)
-  email      String    @db.VarChar(255)
-  tel        String    @db.VarChar(255)
+  nickname   String    @unique @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  email      String    @unique @db.VarChar(255)
+  tel        String    @unique @db.VarChar(255)
   address    String    @db.VarChar(255)
   subAddress String    @map("sub_address") @db.VarChar(255)
   createdAt  DateTime  @default(now()) @map("created_at")
