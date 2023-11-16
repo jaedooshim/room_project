@@ -23,10 +23,12 @@ export class UuidUtil {
   }
 
   static isValidUuid(uuid: string): boolean {
+    // 해당 문자열 인코딩 문자열 검사
     return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(uuid);
   }
 
   static isValidBase62(str: string): boolean {
+    // 해당 문자열 인코딩 문자열 검사
     return /^[0-9a-zA-Z]+$/.test(str);
   }
 }
