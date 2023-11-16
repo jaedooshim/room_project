@@ -4,6 +4,8 @@ import { CreateUserDto } from './user.creatdto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { IMessage } from '../_common/message.interface';
+import { UuidUtil } from '../_common/uuid.util';
+import { IFindUser } from './user.interface';
 
 @Injectable()
 export class UserService {
@@ -28,14 +30,35 @@ export class UserService {
   }
 
   /* 회원정보 전체조회 */
-  async findUser(): Promise<User[] | undefined> {
-    return await this.prisma.user.findMany();
+  async findUser(): Promise<IFindUser[] | undefined> {
+    const users = await this.prisma.user.findMany();
+    const encodedUserId = users.map((user) => {
+      return {
+        ...user,
+        Id: UuidUtil.toBase62(user.id),
+      };
+    });
+    return encodedUserId;
   }
 
   /* 회원정보 단일조회 */
-  async findByUser(id: string): Promise<User> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new HttpException('사용자를 찾을 수 없습니다.', 403);
+  async findByUser(uuid: string): Promise<User> {
+    // 인코딩 함수
+    const user = (await this.prisma.user.findUnique({ where: { id: uuid } })) as IFindUser;
+    if (!user) throw new NotFoundException('회원이 존재하지 않습니다.');
+    user.Id = UuidUtil.toBase62(user.id);
+    return user;
+  }
+  // 디코딩 함수
+  async getFindByUser(encodedId: string): Promise<User> {
+    let uuid;
+    try {
+      uuid = UuidUtil.fromBase62(encodedId);
+    } catch {
+      throw new Error('유효하지않은 UUID 값입니다.');
+    }
+    const user = (await this.prisma.user.findUnique({ where: { id: uuid } })) as IFindUser;
+    user.Id = encodedId;
     return user;
   }
 

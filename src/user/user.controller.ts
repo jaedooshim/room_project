@@ -1,12 +1,10 @@
 import { Body, Controller, Post, Get, Param, Patch, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './user.creatdto';
-import { UuidUtil } from '../_common/uuid.util';
-
 import { User } from '@prisma/client';
 import { IMessage } from '../_common/message.interface';
-import { IRequest } from '../_common/Interface/request.interface';
 import { UpdateUserDto } from './user.update.dto';
+import { IFindUser } from './user.interface';
 
 @Controller('user')
 export class UserController {
@@ -26,8 +24,14 @@ export class UserController {
 
   /* 회원정보 단일조회 */
   @Get(':id')
-  async findByUser(@Param('id') id: string): Promise<User> {
-    return await this.userservice.findByUser(id);
+  async findByUser(@Param('id') id: string): Promise<IFindUser> {
+    // 인코딩 함수
+    if (id.match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/)) {
+      return this.userservice.findByUser(id);
+    } else {
+      // 디코딩 함수
+      return this.userservice.getFindByUser(id);
+    }
   }
 
   /* 회원정보 수정 */
