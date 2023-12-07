@@ -31,7 +31,7 @@ model User {
 model Agent {
   id        String    @id @default(uuid())
   name      String    @db.VarChar(255)
-  tel       String    @db.VarChar(255)
+  tel       String    @unique @db.VarChar(255)
   company   String    @db.VarChar(255)
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
